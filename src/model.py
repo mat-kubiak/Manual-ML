@@ -34,6 +34,6 @@ class Model:
     def fit(self, batch_x, batch_y, epochs=1):
         bar_format="\033[92m{bar:30}\033[0m | epoch {n_fmt}/{total_fmt} ({percentage:.1f}%) | {desc}"
 
-        for e in (pbar := tqdm(range(epochs), bar_format=bar_format, ascii="─━")):
+        for e in (pbar := tqdm(range(epochs), bar_format=bar_format, ascii='\u2500\u2501')):
             self.stack, loss = self.optimizer_fn(self.stack, self.loss_fn, batch_x, batch_y)
             pbar.set_description_str(f"loss: {loss:.5f} ")
