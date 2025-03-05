@@ -1,4 +1,6 @@
 import numpy as np
+from tqdm import tqdm
+
 from src.layer_stack import LayerStack
 from src.losses import get_loss
 
@@ -18,8 +20,7 @@ def naive_optimizer(stack, loss, batch_x, batch_y):
         if new_loss < best_loss:
             best_stack = new_stack
 
-    print(f'loss: {best_loss}')
-    return best_stack
+    return best_stack, best_loss
 
 class Model:
     def __init__(self, layers, loss):
@@ -30,5 +31,9 @@ class Model:
     def apply(self, batch):
         return self.stack.apply(batch)
 
-    def fit(self, batch_x, batch_y):
-        self.stack = self.optimizer_fn(self.stack, self.loss_fn, batch_x, batch_y)
+    def fit(self, batch_x, batch_y, epochs=1):
+        bar_format="\033[92m{bar:30}\033[0m | epoch {n_fmt}/{total_fmt} ({percentage:.1f}%) | {desc}"
+
+        for e in (pbar := tqdm(range(epochs), bar_format=bar_format, ascii="─━")):
+            self.stack, loss = self.optimizer_fn(self.stack, self.loss_fn, batch_x, batch_y)
+            pbar.set_description_str(f"loss: {loss:.5f} ")

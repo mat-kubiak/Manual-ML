@@ -22,9 +22,7 @@ def main():
     num_batches = len(x) // batch_size
 
     # fitting
-    epochs = 10000
-    for e in range(epochs):
-        model.fit(x, y)
+    model.fit(x, y, epochs=10000)
 
     # evaluating
     preds = np.empty((0,), dtype=np.float32)
