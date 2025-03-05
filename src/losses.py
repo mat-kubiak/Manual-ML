@@ -12,5 +12,5 @@ def get_loss(name):
         'mae': mae,
     }
     if name not in fns.keys():
-        raise Exception(f'activation function `{name}` not found! Available activation functions: [{', '.join(fns.keys())}]')
+        raise Exception(f'Loss function `{name}` not found! Available losses: [{', '.join(fns.keys())}]')
     return fns[name]

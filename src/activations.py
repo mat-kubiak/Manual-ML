@@ -15,5 +15,5 @@ def get_activation(name):
     if name == '':
         name = 'linear'
     if name not in fns.keys():
-        raise Exception(f'activation function `{name}` not found! Available activation functions: [{', '.join(fns.keys())}]')
+        raise Exception(f'Activation function `{name}` not found! Available activations: [{', '.join(fns.keys())}]')
     return fns[name]
