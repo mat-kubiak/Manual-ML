@@ -5,9 +5,6 @@ import copy
 from src.dense_layer import DenseLayer
 from src.model import Model
 
-def mse(x, y):
-    return np.mean((x - y)**2)
-
 def main():
 
     # create dataset
@@ -15,7 +12,7 @@ def main():
     y = np.sin(x * 10)
 
     units = 20
-    model = Model(loss='mse', layers=[
+    model = Model(loss='mae', layers=[
         DenseLayer(1, units, 'relu'),
         DenseLayer(units, units, 'relu'),
         DenseLayer(units, 1)
@@ -31,6 +28,7 @@ def main():
 
     # evaluating
     preds = np.empty((0,), dtype=np.float32)
+    loss = 0.0
     for i in range(num_batches):
         x_batch = x[i*batch_size : (i+1)*batch_size]
         y_batch = y[i*batch_size : (i+1)*batch_size]
@@ -41,8 +39,10 @@ def main():
         predictions = predictions.flatten()
         preds = np.concatenate([preds, predictions])
 
-        loss = mse(predictions, y_batch)
-        print(f'loss: {loss}')
+        loss += model.loss_fn(predictions, y_batch)
+    
+    loss /= num_batches
+    print(f'\nFinal loss: {loss}')
 
     # visualize results
     fig, ax = plt.subplots()
