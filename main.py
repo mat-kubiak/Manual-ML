@@ -8,12 +8,20 @@ def mse(x, y):
     return np.mean((x - y)**2)
 
 class LayerStack:
-    def __init__(self, units=50):
-        hidden_layer = DenseLayer(1, units, 'relu')
-        middle_layer = DenseLayer(units, units, 'relu')
-        output_layer = DenseLayer(units, 1)
+    def __init__(self, layers):
+        self.layers = layers
+        try:
+            for i in range(len(layers)-1):
+                self.ensure_layers_match(layers[i], layers[i+1])
+        except Exception as e:
+            raise Exception(f'Cannot construct layer stack (i={i}): {e}')
 
-        self.layers = [hidden_layer, middle_layer, output_layer]
+    def ensure_layers_match(self, lprev, lnext):
+        i_shape = lnext.input_shape
+        o_shape = lprev.output_shape
+
+        if i_shape != o_shape:
+            raise Exception(f'input shape [{i_shape}] is incompatible with output shape [{o_shape}]')
 
     def apply(self, batch):
         x = batch.reshape(-1, 1)
@@ -54,7 +62,12 @@ def main():
     x = np.linspace(0, 1, 100, dtype=np.float32)
     y = np.sin(x * 10)
 
-    model = LayerStack(units=15)
+    units = 20
+    model = LayerStack(layers=[
+        DenseLayer(1, units, 'relu'),
+        DenseLayer(units, units, 'relu'),
+        DenseLayer(units, 1)
+    ])
 
     batch_size = 10
     num_batches = len(x) // batch_size

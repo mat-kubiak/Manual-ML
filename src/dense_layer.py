@@ -5,7 +5,7 @@ from src.activations import get_activation
 class DenseLayer:
     def __init__(self, input_shape, units, activation=''):
         self.input_shape = input_shape
-        self.units = units
+        self.output_shape = units
         self.activation = get_activation(activation)
 
         stddev = 0.2
