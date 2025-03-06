@@ -23,6 +23,14 @@ class LayerStack:
             x = self.layers[i].apply(x)
         return x
 
+    def get_activations(self, batch):
+        x = batch.reshape(-1, 1)
+        activations = []
+        for i in range(len(self.layers)):
+            x = self.layers[i].apply(x)
+            activations.append(x)
+        return activations
+
     def copy(self):
         return copy.deepcopy(self)
 
