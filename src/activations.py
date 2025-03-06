@@ -6,6 +6,9 @@ def linear(x):
 def relu(x):
     return np.maximum(0, x)
 
+def is_activation_linear(name):
+    return name == '' or name == 'linear'
+
 def get_activation(name):
     fns = {
         'linear': linear,
