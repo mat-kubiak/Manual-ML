@@ -25,8 +25,5 @@ class ProgressBar:
         bar_format=f"{self.ACCENT}{{bar:30}}{self.RESET} | epoch {{n_fmt:>{n_fmt_length}}}/{{total_fmt}} ({{percentage:.1f}}%) ETA {{remaining}} | {{desc}}"
         self.bar = tqdm(iterator, bar_format=bar_format, ascii='\u2500\u2501')
 
-    def iterate(self):
-        return self.bar
-
     def update_loss(self, loss):
         self.bar.set_description_str(f"{self.ACCENT}loss: {loss:.5f}{self.RESET} ")
