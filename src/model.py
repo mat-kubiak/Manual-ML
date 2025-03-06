@@ -1,8 +1,8 @@
 import numpy as np
-from tqdm import tqdm
 
 from src.layer_stack import LayerStack
 from src.losses import get_loss
+from src.progress_bar import ProgressBar
 
 def naive_optimizer(stack, loss, batch_x, batch_y):
     init_preds = stack.apply(batch_x)
@@ -33,8 +33,8 @@ class Model:
 
     def fit(self, batch_x, batch_y, epochs=1):
         str_length = len(str(epochs))
-        bar_format="\033[92m{bar:30}\033[0m | epoch {n_fmt:>" + str(str_length) + "}/{total_fmt} ({percentage:.1f}%) ETA {remaining} | {desc}"
 
-        for e in (pbar := tqdm(range(epochs), bar_format=bar_format, ascii='\u2500\u2501')):
+        bar = ProgressBar(range(epochs), total_iters=epochs)
+        for e in bar.bar:
             self.stack, loss = self.optimizer_fn(self.stack, self.loss_fn, batch_x, batch_y)
-            pbar.set_description_str(f"\033[92mloss: {loss:.5f} \033[0m")
+            bar.update_loss(loss)
