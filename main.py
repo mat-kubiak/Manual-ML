@@ -8,21 +8,19 @@ from src.model import Model
 def main():
 
     # create dataset
-    x = np.linspace(0, 1, 100, dtype=np.float32)
+    x = np.linspace(0, 1, 1000, dtype=np.float32)
     y = np.sin(x * 10)
 
-    units = 20
-    model = Model(loss='mae', layers=[
+    units = 100
+    model = Model(loss='mse', layers=[
         DenseLayer(1, units, 'relu'),
         DenseLayer(units, units, 'relu'),
         DenseLayer(units, 1)
     ])
 
-    batch_size = 10
+    batch_size = 100
     num_batches = len(x) // batch_size
-
-    # fitting
-    model.fit(x, y, epochs=10000)
+    model.fit(x, y, batch_size=batch_size, epochs=500)
 
     # evaluating
     preds = np.empty((0,), dtype=np.float32)
