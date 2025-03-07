@@ -1,12 +1,12 @@
 import copy
 import numpy as np
-from src.activations import get_activation, is_activation_linear
+from src.activations import ensure_activation, is_activation_linear
 
 class DenseLayer:
     def __init__(self, input_shape, units, activation=''):
         self.input_shape = input_shape
         self.output_shape = units
-        self.activation = get_activation(activation)
+        self.activation = ensure_activation(activation)
         self.is_activation_linear = is_activation_linear(self.activation)
 
         stddev = 0.2

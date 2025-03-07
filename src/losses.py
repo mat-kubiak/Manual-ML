@@ -41,3 +41,10 @@ def get_loss(name):
         available = ', '.join(_losses.keys())
         raise ValueError(f'Loss function `{name}` not found! Available losses: [{available}]')
     return _losses[name]()
+
+def ensure_loss(l):
+    if isinstance(l, Loss):
+        return l
+    if not isinstance(l, str):
+        raise TypeError(f'Expected an instance of `Loss` or `str`, got `{type(a).__name__}`')
+    return get_loss(l)

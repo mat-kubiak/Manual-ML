@@ -96,5 +96,6 @@ def get_optimizer(name):
 def ensure_optimizer(opt):
     if isinstance(opt, Optimizer):
         return opt
-
+    if not isinstance(a, str):
+        raise TypeError(f'Expected an instance of `Optimizer` or `str`, got `{type(a).__name__}`')
     return get_optimizer(opt)

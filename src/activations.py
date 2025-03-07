@@ -56,7 +56,9 @@ def get_activation(name):
         raise ValueError(f'Activation function `{name}` not found! Available activations: [{available}]')
     return _activations[name]()
 
-def is_activation_linear(a: Activation):
-    if not isinstance(a, Activation):
-        raise TypeError(f'Expected an instance of `Activation`, got `{type(a).__name__}`')
-    return isinstance(a, Linear)
+def ensure_activation(a):
+    if isinstance(a, Activation):
+        return a
+    if not isinstance(a, str):
+        raise TypeError(f'Expected an instance of `Activation` or `str`, got `{type(a).__name__}`')
+    return get_activation(a)

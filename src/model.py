@@ -1,14 +1,14 @@
 import numpy as np
 
 from src.layer_stack import LayerStack
-from src.losses import get_loss
+from src.losses import ensure_loss
 from src.progress_bar import ProgressBar
 from src.optimizers import ensure_optimizer
 
 class Model:
     def __init__(self, layers, loss, optimizer):
         self.stack = LayerStack(layers)
-        self.loss = get_loss(loss)
+        self.loss = ensure_loss(loss)
         self.optimizer = ensure_optimizer(optimizer)
 
     def apply(self, batch):
