@@ -1,22 +1,40 @@
 import numpy as np
+from abc import ABC, abstractmethod
 
-def linear(x):
-    return x
+class Activation(ABC):
+    @abstractmethod
+    def apply(self, x):
+        pass
 
-def relu(x):
-    return np.maximum(0, x)
+    def __call__(self, x):
+        return self.apply(x)
 
-def is_activation_linear(name):
-    return name == '' or name == 'linear'
+    def get_name(self):
+        return type(self).__name__.lower()
+
+
+class Linear(Activation):
+    def apply(self, x):
+        return x
+
+class ReLU(Activation):
+    def apply(self, x):
+        return np.maximum(0, x)
+
+
+_activations = {
+    cls().get_name(): cls
+    for cls in Activation.__subclasses__()
+}
 
 def get_activation(name):
-    fns = {
-        'linear': linear,
-        'relu': relu,
-    }
+    name = name.strip().lower() or 'linear'
+    if name not in _activations.keys():
+        available = ', '.join(_activations.keys())
+        raise ValueError(f'Activation function `{name}` not found! Available activations: [{available}]')
+    return _activations[name]()
 
-    if name == '':
-        name = 'linear'
-    if name not in fns.keys():
-        raise Exception(f'Activation function `{name}` not found! Available activations: [{', '.join(fns.keys())}]')
-    return fns[name]
+def is_activation_linear(a: Activation):
+    if not isinstance(a, Activation):
+        raise TypeError(f'Expected an instance of `Activation`, got `{type(a).__name__}`')
+    return isinstance(a, Linear)
