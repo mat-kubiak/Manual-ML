@@ -3,22 +3,32 @@ from abc import ABC, abstractmethod
 
 class Loss(ABC):
     @abstractmethod
-    def apply(self, x, y):
+    def apply(self, y_pred, y_true):
         pass
 
-    def __call__(self, x, y):
-        return self.apply(x, y)
+    @abstractmethod
+    def apply_derivative(self, y_pred, y_true):
+        pass
+
+    def __call__(self, y_pred, y_true):
+        return self.apply(y_pred, y_true)
 
     def get_name(self):
         return type(self).__name__.lower()
 
 class MSE(Loss):
-    def apply(self, x, y):
-        return np.mean((x - y)**2)
+    def apply(self, y_pred, y_true):
+        return np.mean((y_pred - y_true)**2)
+
+    def apply_derivative(self, y_pred, y_true):
+        return 2.0*(y_pred - y_true)
 
 class MAE(Loss):
-    def apply(self, x, y):
-        return np.mean(np.absolute(x - y))
+    def apply(self, y_pred, y_true):
+        return np.mean(np.absolute(y_pred - y_true))
+    
+    def apply_derivative(self, y_pred, y_true):
+        return np.where(y_pred > y_true, 1, np.where(y_pred < y_true, -1, 0))
 
 _losses = {
     cls().get_name(): cls
