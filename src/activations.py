@@ -31,6 +31,18 @@ class ReLU(Activation):
     def apply_derivative(self, x):
         return np.where(x > 0, 1.0, 0.0).astype(np.float32)
 
+class LeakyReLU(Activation):
+    def __init__(self, slope=0.01):
+        self.slope = slope
+
+    def get_name(self):
+        return 'leaky_relu'
+
+    def apply(self, x):
+        return np.where(x > 0, x, self.slope * x)
+
+    def apply_derivative(self, x):
+        return np.where(x > 0, 1.0, -self.slope).astype(np.float32)
 
 _activations = {
     cls().get_name(): cls
