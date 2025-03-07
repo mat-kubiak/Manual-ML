@@ -4,6 +4,7 @@ import copy
 
 from src.dense_layer import DenseLayer
 from src.model import Model
+from src import optimizers
 
 def main():
 
@@ -12,11 +13,15 @@ def main():
     y = np.sin(x * 10)
 
     units = 100
-    model = Model(loss='mse', layers=[
-        DenseLayer(1, units, 'relu'),
-        DenseLayer(units, units, 'relu'),
-        DenseLayer(units, 1)
-    ])
+    model = Model(
+        loss='mse',
+        optimizer=optimizers.SGD(lr_rate=0.001),
+        layers=[
+            DenseLayer(1, units, 'leaky_relu'),
+            DenseLayer(units, units, 'leaky_relu'),
+            DenseLayer(units, 1)
+        ]
+    )
 
     batch_size = 100
     num_batches = len(x) // batch_size
@@ -36,7 +41,7 @@ def main():
         preds = np.concatenate([preds, predictions])
 
         loss += model.loss(predictions, y_batch)
-    
+
     loss /= num_batches
     print(f'\nFinal loss: {loss}')
 
