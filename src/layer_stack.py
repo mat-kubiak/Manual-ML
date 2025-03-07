@@ -15,7 +15,7 @@ class LayerStack:
             for i in range(len(layers)-1):
                 _ensure_layers_match(layers[i], layers[i+1])
         except Exception as e:
-            raise Exception(f'Cannot construct layer stack (i={i}): {e}')
+            raise Exception(f'Cannot construct layer stack: {e}')
 
     def apply(self, batch):
         x = batch.reshape(-1, 1)
