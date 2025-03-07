@@ -109,7 +109,7 @@ def real_backprop(stack: LayerStack, x, y_true):
 class Model:
     def __init__(self, layers, loss):
         self.stack = LayerStack(layers)
-        self.loss_fn = get_loss(loss)
+        self.loss = get_loss(loss)
         self.optimizer_fn = great_optimizer
 
     def apply(self, batch):
@@ -139,7 +139,7 @@ class Model:
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
 
-                self.stack, loss = self.optimizer_fn(self.stack.copy(), self.loss_fn, x_batch, y_batch)
+                self.stack, loss = self.optimizer_fn(self.stack.copy(), self.loss, x_batch, y_batch)
                 bar.update_loss(loss)
                 losses.append(loss)
                 

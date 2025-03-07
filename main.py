@@ -35,7 +35,7 @@ def main():
         predictions = predictions.flatten()
         preds = np.concatenate([preds, predictions])
 
-        loss += model.loss_fn(predictions, y_batch)
+        loss += model.loss(predictions, y_batch)
     
     loss /= num_batches
     print(f'\nFinal loss: {loss}')
