@@ -12,20 +12,21 @@ def main():
     x = np.linspace(0, 1, 1000, dtype=np.float32)
     y = np.sin(x * 10)
 
-    units = 100
+    units = 50
     model = Model(
         loss='mse',
-        optimizer=optimizers.SGD(lr_rate=0.001),
+        optimizer=optimizers.SGD(lr_rate=0.0002),
         layers=[
-            DenseLayer(1, units, 'leaky_relu'),
-            DenseLayer(units, units, 'leaky_relu'),
+            DenseLayer(1, units, 'tanh'),
+            DenseLayer(units, units, 'tanh'),
+            DenseLayer(units, units, 'tanh'),
             DenseLayer(units, 1)
         ]
     )
 
     batch_size = 100
     num_batches = len(x) // batch_size
-    model.fit(x, y, batch_size=batch_size, epochs=500)
+    model.fit(x, y, batch_size=batch_size, epochs=700)
 
     # evaluating
     preds = np.empty((0,), dtype=np.float32)
