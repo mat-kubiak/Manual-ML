@@ -45,7 +45,7 @@ class SGD(Optimizer):
             layer.weights = layer.weights - self.lr_rate * weight_gradients[i]
 
         pred = stack.apply(batch_x)
-        loss_val = loss(batch_y, pred)
+        loss_val = loss(pred, batch_y)
 
         return stack, loss_val
 
