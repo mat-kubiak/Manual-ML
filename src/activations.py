@@ -22,7 +22,7 @@ class Linear(Activation):
         return x
 
     def apply_derivative(self, x):
-        return 1.0
+        return np.ones_like(x)
 
 class ReLU(Activation):
     def apply(self, x):
