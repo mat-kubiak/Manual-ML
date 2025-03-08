@@ -18,13 +18,13 @@ class LayerStack:
             raise Exception(f'Cannot construct layer stack: {e}')
 
     def apply(self, batch):
-        x = batch.reshape(-1, 1)
+        x = batch
         for i in range(len(self.layers)):
             x = self.layers[i].apply(x)
         return x
 
     def forward_trace(self, batch):
-        x = batch.reshape(-1, 1)
+        x = batch
 
         activations = []
         z_inputs = []
@@ -35,7 +35,7 @@ class LayerStack:
             x = self.layers[i].activation.apply(x)
             activations.append(x)
 
-        y_pred = activations[-1].flatten()
+        y_pred = activations[-1]
         return activations, z_inputs, y_pred
 
     def copy(self):

@@ -81,7 +81,7 @@ class SGD(Optimizer):
             act_deriv = stack.layers[i].activation.apply_derivative(z_inputs[i])
             delta = delta * act_deriv
 
-            prev_act = activations[i-1] if i > 0 else x.reshape(-1, 1)
+            prev_act = activations[i-1] if i > 0 else x
             
             b_grad = np.sum(delta, axis=0, keepdims=True)
             w_grad = np.matmul(prev_act.T, delta)

@@ -15,21 +15,31 @@ class Model:
         return self.stack.apply(batch)
 
     def fit(self, x, y, batch_size, epochs=1):
-        num_batches = len(x) // batch_size
         loss_history = []
+
+        if len(x.shape) == 1:
+            x = x.reshape(-1, 1)
+        if len(y.shape) == 1:
+            y = y.reshape(-1, 1)
+
+        if x.shape[0] != y.shape[0]:
+            raise ValueError(f'x and y should have the same number of samples, found: `{x.shape[0]}` and `{y.shape[0]}`')
+
+        num_samples = x.shape[0]
+        num_batches = num_samples // batch_size
 
         ebar = ProgressBar(range(epochs), total_iters=epochs)
         for e in ebar.bar:
             # Shuffling
-            indices = np.random.permutation(len(x))
+            indices = np.random.permutation(num_samples)
             x_shuffled = x[indices]
             y_shuffled = y[indices]
 
-            x_batches = np.reshape(x_shuffled, [num_batches, batch_size])
-            y_batches = np.reshape(y_shuffled, [num_batches, batch_size])
+            x_batches = np.reshape(x_shuffled, [num_batches, batch_size] + list(x.shape[1:]))
+            y_batches = np.reshape(y_shuffled, [num_batches, batch_size] + list(y.shape[1:]))
 
             epoch_loss = 0.0
-            for i in range(len(x_batches)):
+            for i in range(num_batches):
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
 
