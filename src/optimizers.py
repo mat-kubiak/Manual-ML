@@ -55,29 +55,28 @@ class SGD(Optimizer):
         bias_gradients = []
         weight_gradients = []
 
-        # initialize delta
+        # propagate error to before loss
         delta = loss.apply_derivative(y_pred, y_true).reshape(-1, 1)
 
         for i in range(len(stack.layers)-1, -1, -1):
-            prev_act = activations[i-1] if i != 0 else x.reshape(-1,1)
+            # propagate error to before layer activation
+            act_deriv = stack.layers[i].activation.apply_derivative(z_inputs[i])
+            delta = delta * act_deriv
 
-            current_layer = stack.layers[i]
-            prev_layer = stack.layers[i-1]
-            weights = current_layer.weights
-
-            act_deriv = current_layer.activation.apply_derivative(prev_act)
-            b_grad = np.sum(delta * act_deriv, axis=0, keepdims=False)
-
+            prev_act = activations[i-1] if i > 0 else x.reshape(-1, 1)
+            
+            b_grad = np.sum(delta, axis=0, keepdims=True)
             w_grad = np.matmul(prev_act.T, delta)
 
             bias_gradients.append(b_grad)
             weight_gradients.append(w_grad)
 
+            # propagate error to before current layer
+            # (omit first layer because it won't be used)
             if i != 0:
-                delta = np.matmul(delta, weights.T)
+                delta = np.matmul(delta, stack.layers[i].weights.T)
 
         return list(reversed(bias_gradients)), list(reversed(weight_gradients))
-
 
 
 _optimizers = {
