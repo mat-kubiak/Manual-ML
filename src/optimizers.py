@@ -34,15 +34,33 @@ class RandomOptimizer(Optimizer):
         return 'random_optimizer'
 
 class SGD(Optimizer):
-    def __init__(self, lr_rate=0.01):
+    def __init__(self, lr_rate=0.01, momentum=0.9):
         self.lr_rate = lr_rate
+        self.momentum = momentum
+        self.velocity = None
+
+    def _update_velocity(self, b_grad, w_grad):
+            if self.velocity == None:
+                self.velocity = {
+                    'biases': b_grad,
+                    'weights': w_grad
+                }
+                return
+
+            b_vel = self.velocity['biases']
+            w_vel = self.velocity['weights']
+
+            for i in range(len(b_vel)):
+                b_vel[i] = b_vel[i] * self.momentum + b_grad[i] * (1-self.momentum)
+                w_vel[i] = w_vel[i] * self.momentum + w_grad[i] * (1-self.momentum)
 
     def apply(self, stack, loss, batch_x, batch_y):
         bias_gradients, weight_gradients = self._backprop_gradient(stack, loss, batch_x, batch_y)
+        self._update_velocity(bias_gradients, weight_gradients)
 
         for i, layer in enumerate(stack.layers):
-            layer.biases = layer.biases - self.lr_rate * bias_gradients[i]
-            layer.weights = layer.weights - self.lr_rate * weight_gradients[i]
+            layer.biases = layer.biases - self.lr_rate * self.velocity['biases'][i]
+            layer.weights = layer.weights - self.lr_rate * self.velocity['weights'][i]
 
         pred = stack.apply(batch_x)
         loss_val = loss(pred, batch_y)
