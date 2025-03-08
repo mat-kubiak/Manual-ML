@@ -26,7 +26,7 @@ def main():
 
     batch_size = 100
     num_batches = len(x) // batch_size
-    model.fit(x, y, batch_size=batch_size, epochs=700)
+    loss_history = model.fit(x, y, batch_size=batch_size, epochs=700)
 
     # evaluating
     preds = np.empty((0,), dtype=np.float32)
@@ -46,13 +46,26 @@ def main():
     loss /= num_batches
     print(f'\nFinal loss: {loss}')
 
-    # visualize results
-    fig, ax = plt.subplots()
-    ax.plot(x, y, linewidth=2.0)
-    ax.plot(x, preds, linewidth=2.0)
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+
+    # True labels vs. Predictions
+    axes[0].plot(x, y, label="True Labels", linewidth=2.0)
+    axes[0].plot(x, preds, label="Predictions", linewidth=2.0)
+    axes[0].set_title("True Labels vs. Predictions")
+    axes[0].set_xlabel("X")
+    axes[0].set_ylabel("Y")
+    axes[0].legend()
+    axes[0].grid()
+
+    # Loss History
+    axes[1].plot(range(len(loss_history)), loss_history, color='red', linewidth=2.0)
+    axes[1].set_title("Loss History")
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Loss")
+    axes[1].grid()
+
+    plt.tight_layout()
     plt.show()
-
-
 
 if __name__ == '__main__':
     main()

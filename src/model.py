@@ -15,32 +15,28 @@ class Model:
         return self.stack.apply(batch)
 
     def fit(self, x, y, batch_size, epochs=1):
-        ebar = ProgressBar(range(epochs), total_iters=epochs)
         num_batches = len(x) // batch_size
+        loss_history = []
 
-        # per epoch
+        ebar = ProgressBar(range(epochs), total_iters=epochs)
         for e in ebar.bar:
+            # Shuffling
             indices = np.random.permutation(len(x))
-
-            # Shuffle both x and y using the same indices
             x_shuffled = x[indices]
             y_shuffled = y[indices]
-            # x_shuffled = x
-            # y_shuffled = y
 
             x_batches = np.reshape(x_shuffled, [num_batches, batch_size])
             y_batches = np.reshape(y_shuffled, [num_batches, batch_size])
 
-            losses = []
-
-            bar = ProgressBar(range(len(x_batches)), color='cyan')
-            for i in bar.bar:
+            epoch_loss = 0.0
+            for i in range(len(x_batches)):
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
 
                 self.stack, loss = self.optimizer.apply(self.stack.copy(), self.loss, x_batch, y_batch)
-                bar.update_loss(loss)
-                losses.append(loss)
-                
-                if i % 10000 == 0:
-                    ebar.update_loss(np.mean(losses))
+                epoch_loss += loss
+
+            ebar.update_loss(epoch_loss / num_batches)
+            loss_history.append(epoch_loss / num_batches)
+
+        return loss_history
