@@ -44,6 +44,29 @@ class LeakyReLU(Activation):
     def apply_derivative(self, x):
         return np.where(x > 0, 1.0, -self.slope).astype(np.float32)
 
+class Sigmoid(Activation):
+    def apply(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def apply_derivative(self, x):
+        sig = self.apply(x)
+        return sig * (1 - sig)
+
+class Tanh(Activation):
+    def apply(self, x):
+        return np.tanh(x)
+    
+    def apply_derivative(self, x):
+        return 1 - np.tanh(x) ** 2
+
+class Softmax(Activation):
+    def apply(self, x):
+        exp = np.exp(x)
+        return exp / np.sum(exp)
+
+    def apply_derivative(self, x):
+        raise NotImplementedError('derivative of softmax not implemented!')
+
 _activations = {
     cls().get_name(): cls
     for cls in Activation.__subclasses__()
