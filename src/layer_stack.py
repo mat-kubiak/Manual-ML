@@ -23,13 +23,20 @@ class LayerStack:
             x = self.layers[i].apply(x)
         return x
 
-    def get_activations(self, batch):
+    def forward_trace(self, batch):
         x = batch.reshape(-1, 1)
+
         activations = []
+        z_inputs = []
+
         for i in range(len(self.layers)):
-            x = self.layers[i].apply(x)
+            x = self.layers[i].apply_linear(x)
+            z_inputs.append(x)
+            x = self.layers[i].activation.apply(x)
             activations.append(x)
-        return activations
+
+        y_pred = activations[-1].flatten()
+        return activations, z_inputs, y_pred
 
     def copy(self):
         return copy.deepcopy(self)

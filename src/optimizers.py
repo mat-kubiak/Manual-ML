@@ -49,9 +49,8 @@ class SGD(Optimizer):
 
         return stack, loss_val
 
-    def _backprop_gradient(self, stack: LayerStack, loss:Loss, x, y_true):
-        activations = stack.get_activations(x)
-        y_pred = activations[len(activations)-1].flatten()
+    def _backprop_gradient(self, stack: LayerStack, loss: Loss, x, y_true):
+        activations, z_inputs, y_pred = stack.forward_trace(x)
 
         bias_gradients = []
         weight_gradients = []

@@ -14,9 +14,11 @@ class DenseLayer:
 
     def apply(self, tensor):
         tensor = np.matmul(tensor, self.weights) + self.biases
-        if self.activation is not None:
-            tensor = self.activation(tensor)
+        tensor = self.activation(tensor)
         return tensor
+
+    def apply_linear(self, tensor):
+        return np.matmul(tensor, self.weights) + self.biases
 
     def copy(self):
         return copy.deepcopy(self)
