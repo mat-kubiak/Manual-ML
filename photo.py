@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from PIL import Image
 
+import os
+os.environ["OMP_NUM_THREADS"] = "8"  # Adjust based on CPU cores
+
 from src.dense_layer import DenseLayer
 from src.model import Model
 from src import optimizers
