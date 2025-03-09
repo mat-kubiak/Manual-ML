@@ -28,8 +28,7 @@ class Model:
         num_samples = x.shape[0]
         num_batches = num_samples // batch_size
 
-        ebar = ProgressBar(range(epochs), total_iters=epochs)
-        for e in ebar.bar:
+        for e in range(epochs):
             # Shuffling
             indices = np.random.permutation(num_samples)
             x_shuffled = x[indices]
@@ -38,15 +37,19 @@ class Model:
             x_batches = np.reshape(x_shuffled, [num_batches, batch_size] + list(x.shape[1:]))
             y_batches = np.reshape(y_shuffled, [num_batches, batch_size] + list(y.shape[1:]))
 
+            print(f'\nEpoch [{e+1}/{epochs}]:')
+
             epoch_loss = 0.0
-            for i in range(num_batches):
+            bbar = ProgressBar(range(num_batches), total_iters=num_batches)
+            for i in bbar.bar:
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
 
                 self.stack, loss = self.optimizer.apply(self.stack.copy(), self.loss, x_batch, y_batch)
                 epoch_loss += loss
 
-            ebar.update_loss(epoch_loss / num_batches)
+                bbar.update_loss(epoch_loss / (i+1))
+
             loss_history.append(epoch_loss / num_batches)
 
         return loss_history

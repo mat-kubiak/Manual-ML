@@ -16,13 +16,13 @@ def to_color_code(color_name):
     return color_map.get(color_name.lower(), '\033[0m')
 
 class ProgressBar:
-    def __init__(self, iterator, color='green', total_iters=0):
+    def __init__(self, iterator, iter_name='batch', color='green', total_iters=0):
         n_fmt_length = len(str(total_iters))
 
         self.ACCENT = to_color_code(color)
         self.RESET = to_color_code('reset')
 
-        bar_format=f"{self.ACCENT}{{bar:30}}{self.RESET} | epoch {{n_fmt:>{n_fmt_length}}}/{{total_fmt}} ({{percentage:.1f}}%) ETA {{remaining}} | {{desc}}"
+        bar_format=f"{self.ACCENT}{{bar:30}}{self.RESET} | {iter_name} {{n_fmt:>{n_fmt_length}}}/{{total_fmt}} ({{percentage:.1f}}%) ETA {{remaining}} | {{desc}}"
         self.bar = tqdm(iterator, bar_format=bar_format, ascii='\u2500\u2501')
 
     def update_loss(self, loss):
