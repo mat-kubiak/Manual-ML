@@ -14,7 +14,7 @@ class Model:
     def apply(self, batch):
         return self.stack.apply(batch)
 
-    def fit(self, x, y, batch_size, epochs=1):
+    def fit(self, x, y, batch_size, epochs, epoch_callback=None):
         loss_history = []
 
         if len(x.shape) == 1:
@@ -51,5 +51,7 @@ class Model:
                 bbar.update_loss(epoch_loss / (i+1))
 
             loss_history.append(epoch_loss / num_batches)
+            if epoch_callback != None:
+                epoch_callback.__call__(e+1)
 
         return loss_history

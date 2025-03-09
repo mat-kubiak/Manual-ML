@@ -57,12 +57,13 @@ def main():
     batch_size = 15
     num_batches = len(x) // batch_size
 
-    for i in range(200):
-        loss_history = model.fit(x, y, batch_size=batch_size, epochs=1)
-
+    def save_progress_image(epoch):
         preds = model.apply(x).reshape([height, width])
-        save_image(preds, f'animation/{i}.png')
+        save_image(preds, f'animation/{epoch}.png')
 
+    loss_history = model.fit(x, y, batch_size=batch_size, epochs=2, epoch_callback=save_progress_image)
+
+    preds = model.apply(x).reshape([height, width])
     loss = model.loss(preds.flatten(), img.flatten())
     print(f"Final loss ({model.loss.get_name()}): {loss}")
 
