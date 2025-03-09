@@ -27,48 +27,60 @@ def main():
         ]
     )
 
-    batch_size = 100
-    num_batches = len(x) // batch_size
-    loss_history = model.fit(x, y, batch_size=batch_size, epochs=700)
-
-    # evaluating
-    preds = np.empty((0,), dtype=np.float32)
-    loss = 0.0
-    for i in range(num_batches):
-        x_batch = x[i*batch_size : (i+1)*batch_size]
-        y_batch = y[i*batch_size : (i+1)*batch_size]
-
-        # Apply the neural network on this batch
-        x_batch = x_batch.reshape(-1,1)
-        predictions = model.apply(x_batch)
-        predictions = predictions.flatten()
-        preds = np.concatenate([preds, predictions])
-
-        loss += model.loss(predictions, y_batch)
-
-    loss /= num_batches
-    print(f'\nFinal loss: {loss}')
-
+    # init graphs
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
 
-    # True labels vs. Predictions
-    axes[0].plot(x, y, label="True Labels", linewidth=2.0)
-    axes[0].plot(x, preds, label="Predictions", linewidth=2.0)
+    true_line, = axes[0].plot(x, y, label="True Labels", linewidth=2.0)
+    pred_line, = axes[0].plot(x, np.zeros_like(x), label="Predictions", linewidth=2.0)
     axes[0].set_title("True Labels vs. Predictions")
     axes[0].set_xlabel("X")
     axes[0].set_ylabel("Y")
     axes[0].legend()
     axes[0].grid()
 
-    # Loss History
-    axes[1].plot(range(len(loss_history)), loss_history, color='red', linewidth=2.0)
+    loss_line, = axes[1].plot([], [], color='red', linewidth=2.0)
     axes[1].set_title("Loss History")
     axes[1].set_xlabel("Epoch")
     axes[1].set_ylabel("Loss")
+    axes[1].set_yscale('log')
     axes[1].grid()
 
     plt.tight_layout()
+    plt.show(block=False)
+
+    loss_history = []
+
+    def update_plot_callback(epoch):
+        preds = model.apply(x.reshape(-1,1)).flatten()
+        pred_line.set_ydata(preds)
+
+        loss_history.append(model.loss(preds, y))
+
+        loss_line.set_xdata(range(len(loss_history)))
+        loss_line.set_ydata(loss_history)
+
+        axes[1].set_xlim(0, len(loss_history))
+        axes[1].relim()
+        axes[1].autoscale_view()
+
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+
+    # training
+    loss_history = model.fit(x, y,
+        batch_size=100,
+        epochs=100,
+        epoch_callback=update_plot_callback
+    )
+
+    # evaluating
+    predictions = model.apply(x.reshape(-1,1)).flatten()
+    print(f'\nFinal loss: {model.loss(predictions, y)}')
+
+    # final show
+    plt.ioff()
     plt.show()
+
 
 if __name__ == '__main__':
     main()
