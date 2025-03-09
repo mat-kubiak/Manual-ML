@@ -1,9 +1,10 @@
+
+import os, multiprocessing
+os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count())
+
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-
-import os
-os.environ["OMP_NUM_THREADS"] = "8"  # Adjust based on CPU cores
 
 from src.dense_layer import DenseLayer
 from src.model import Model

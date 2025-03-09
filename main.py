@@ -1,6 +1,9 @@
+
+import os, multiprocessing
+os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count())
+
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
 
 from src.dense_layer import DenseLayer
 from src.model import Model
