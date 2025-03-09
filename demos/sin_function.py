@@ -69,7 +69,7 @@ def main():
     # training
     loss_history = model.fit(x, y,
         batch_size=100,
-        epochs=100,
+        epochs=700,
         epoch_callback=update_plot_callback
     )
 
@@ -80,7 +80,6 @@ def main():
     # final show
     plt.ioff()
     plt.show()
-
 
 if __name__ == '__main__':
     main()
