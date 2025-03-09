@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from PIL import Image
 
 import os
@@ -19,7 +18,7 @@ def load_image(path):
     return image
 
 def save_image(img, path):
-    colored = cm.get_cmap(CMAP)(img)
+    colored = plt.get_cmap(CMAP)(img)
 
     # remove alpha
     colored = (colored[:, :, :3] * 255).astype(np.uint8)
