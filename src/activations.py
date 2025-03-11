@@ -67,6 +67,17 @@ class Softmax(Activation):
     def apply_derivative(self, x):
         raise NotImplementedError('derivative of softmax not implemented!')
 
+class Sine(Activation):
+    def __init__(self, freq=30.0, amp=1.0):
+        self.f = freq
+        self.a = amp
+
+    def apply(self, x):
+        return np.sin(x * self.f) * self.a
+
+    def apply_derivative(self, x):
+        return self.f * self.a * np.cos(x * self.f)
+
 _activations = {
     cls().get_name(): cls
     for cls in Activation.__subclasses__()
