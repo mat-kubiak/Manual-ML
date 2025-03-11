@@ -26,7 +26,12 @@ class Model:
             raise ValueError(f'x and y should have the same number of samples, found: `{x.shape[0]}` and `{y.shape[0]}`')
 
         num_samples = x.shape[0]
-        num_batches = num_samples // batch_size
+
+        odd_batch_size = num_samples % batch_size
+        is_even = odd_batch_size == 0
+
+        num_even_batches = num_samples // batch_size
+        num_batches_total = num_even_batches + int(not is_even)
 
         for e in range(epochs):
             # Shuffling
@@ -34,13 +39,24 @@ class Model:
             x_shuffled = x[indices]
             y_shuffled = y[indices]
 
-            x_batches = np.reshape(x_shuffled, [num_batches, batch_size] + list(x.shape[1:]))
-            y_batches = np.reshape(y_shuffled, [num_batches, batch_size] + list(y.shape[1:]))
+            if not is_even:
+                x_odd = x_shuffled[-odd_batch_size:]
+                y_odd = y_shuffled[-odd_batch_size:]
+
+                x_shuffled = x_shuffled[0:num_samples-odd_batch_size]
+                y_shuffled = y_shuffled[0:num_samples-odd_batch_size]
+
+            x_batches = np.reshape(x_shuffled, [num_even_batches, batch_size] + list(x.shape[1:]))
+            y_batches = np.reshape(y_shuffled, [num_even_batches, batch_size] + list(y.shape[1:]))
+
+            if not is_even:
+                x_batches = list(x_batches) +  list([x_odd])
+                y_batches = list(y_batches) + list([y_odd])
 
             print(f'\nEpoch [{e+1}/{epochs}]:')
 
             epoch_loss = 0.0
-            bbar = ProgressBar(range(num_batches), total_iters=num_batches)
+            bbar = ProgressBar(range(num_batches_total), total_iters=num_batches_total)
             for i in bbar.bar:
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
@@ -50,7 +66,7 @@ class Model:
 
                 bbar.update_loss(epoch_loss / (i+1))
 
-            loss_history.append(epoch_loss / num_batches)
+            loss_history.append(epoch_loss / num_batches_total)
             if epoch_callback != None:
                 epoch_callback.__call__(e+1)
 
