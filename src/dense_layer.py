@@ -1,16 +1,17 @@
 import copy
 import numpy as np
 from src.activations import ensure_activation
+from src.initializers import ensure_initializer
 
 class DenseLayer:
-    def __init__(self, input_shape, units, activation=''):
+    def __init__(self, input_shape, units, activation='', initializer=''):
         self.input_shape = input_shape
         self.output_shape = units
         self.activation = ensure_activation(activation)
+        self.initializer = ensure_initializer(initializer)
 
-        stddev = 0.2
-        self.biases = np.random.normal(0.0, stddev, [units]).astype(np.float32)
-        self.weights = np.random.normal(0.0, stddev, [input_shape, units]).astype(np.float32)
+        self.biases = np.zeros((self.output_shape), dtype=np.float32)
+        self.weights = self.initializer((self.input_shape, self.output_shape))
 
     def apply(self, tensor):
         tensor = np.matmul(tensor, self.weights) + self.biases
