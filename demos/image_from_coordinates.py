@@ -5,6 +5,8 @@ from PIL import Image
 from src.dense_layer import DenseLayer
 from src.model import Model
 from src import optimizers
+from src.initializers import Siren
+from src.activations import Sine
 
 CMAP = 'inferno'
 TRAIN_IMAGE = 'images/lenna.jpg'
@@ -29,25 +31,26 @@ def main():
     height, width = img.shape
     y = img.flatten()
 
-    x_coords = np.linspace(0.0, 1.0, width)
-    y_coords = np.linspace(0.0, 1.0, height)
+    x_coords = np.linspace(-1.0, 1.0, width)
+    y_coords = np.linspace(-1.0, 1.0, height)
 
     X, Y = np.meshgrid(x_coords, y_coords)
 
     coord_array = np.stack((X, Y), axis=-1)
     x = np.reshape(coord_array, [height*width, 2])
 
-    units = 100
+    units = 150
+    omega_0 = 30.0
+
     model = Model(
         loss='mse',
-        optimizer=optimizers.Adam(lr_rate=1e-4),
+        optimizer=optimizers.Adam(lr_rate=1e-6),
         layers=[
-            DenseLayer(2, units, 'leaky_relu'),
-            DenseLayer(units, units, 'leaky_relu'),
-            DenseLayer(units, units, 'leaky_relu'),
-            DenseLayer(units, units, 'leaky_relu'),
-            DenseLayer(units, units, 'tanh'),
-            DenseLayer(units, 1, 'sigmoid')
+            DenseLayer(2, units, Sine(freq=omega_0), initializer=Siren(omega_0=omega_0, is_first=True)),
+            DenseLayer(units, units, Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
+            DenseLayer(units, units, Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
+            DenseLayer(units, units, Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
+            DenseLayer(units, 1, 'sigmoid', initializer=Siren())
         ]
     )
 
@@ -57,7 +60,7 @@ def main():
 
     loss_history = model.fit(x, y,
         batch_size=32,
-        epochs=1000,
+        epochs=500,
         epoch_callback=save_progress_image
     )
 
