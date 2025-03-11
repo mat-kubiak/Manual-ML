@@ -71,7 +71,7 @@ def main():
 
     # evaluating
     predictions = model.apply(x.reshape(-1,1)).flatten()
-    print(f'\nFinal loss: {model.loss(predictions, y)}')
+    print(f'\nFinal loss ({model.loss.get_name()}): {model.loss(predictions, y):.4e}')
 
     # final show
     plt.ioff()

@@ -66,7 +66,7 @@ def main():
 
     preds = model.apply(x).reshape([height, width])
     loss = model.loss(preds.flatten(), img.flatten())
-    print(f"Final loss ({model.loss.get_name()}): {loss}")
+    print(f"Final loss ({model.loss.get_name()}): {loss:.4e}")
 
     fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(10, 5))
 

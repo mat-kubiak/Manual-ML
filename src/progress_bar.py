@@ -26,4 +26,8 @@ class ProgressBar:
         self.bar = tqdm(iterator, bar_format=bar_format, ascii='\u2500\u2501')
 
     def update_loss(self, loss):
-        self.bar.set_description_str(f"{self.ACCENT}loss: {loss:.5f}{self.RESET} ")
+        if loss < 0.01 or loss > 100.0:
+            loss_str = f'{loss:.4e}'
+        else:
+            loss_str = f'{loss:.4f}'
+        self.bar.set_description_str(f"{self.ACCENT}loss: {loss_str}{self.RESET} ")
