@@ -14,7 +14,7 @@ def main():
     units = 50
     model = Model(
         loss='mse',
-        optimizer=optimizers.SGD(lr_rate=0.0002),
+        optimizer=optimizers.Adam(lr_rate=1e-4),
         layers=[
             DenseLayer(1, units, 'tanh'),
             DenseLayer(units, units, 'tanh'),
@@ -65,7 +65,7 @@ def main():
     # training
     loss_history = model.fit(x, y,
         batch_size=100,
-        epochs=700,
+        epochs=250,
         epoch_callback=update_plot_callback
     )
 
