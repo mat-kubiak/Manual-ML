@@ -37,10 +37,10 @@ def main():
     coord_array = np.stack((X, Y), axis=-1)
     x = np.reshape(coord_array, [height*width, 2])
 
-    units = 50
+    units = 100
     model = Model(
         loss='mse',
-        optimizer=optimizers.SGD(lr_rate=0.01),
+        optimizer=optimizers.Adam(lr_rate=1e-4),
         layers=[
             DenseLayer(2, units, 'leaky_relu'),
             DenseLayer(units, units, 'leaky_relu'),
@@ -51,14 +51,15 @@ def main():
         ]
     )
 
-    batch_size = 15
-    num_batches = len(x) // batch_size
-
     def save_progress_image(epoch):
         preds = model.apply(x).reshape([height, width])
         save_image(preds, f'animation/{epoch}.png')
 
-    loss_history = model.fit(x, y, batch_size=batch_size, epochs=2, epoch_callback=save_progress_image)
+    loss_history = model.fit(x, y,
+        batch_size=32,
+        epochs=1000,
+        epoch_callback=save_progress_image
+    )
 
     preds = model.apply(x).reshape([height, width])
     loss = model.loss(preds.flatten(), img.flatten())
