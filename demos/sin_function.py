@@ -63,7 +63,7 @@ def main():
         fig.canvas.flush_events()
 
     # training
-    loss_history = model.fit(x, y,
+    model.fit(x, y,
         batch_size=100,
         epochs=250,
         epoch_callback=update_plot_callback

@@ -52,3 +52,5 @@ class ProgressBar:
         self.bar.bar_format = bar_format
         self.bar.refresh()
         self.bar.close()
+
+        return duration

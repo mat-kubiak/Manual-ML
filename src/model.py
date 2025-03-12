@@ -16,6 +16,7 @@ class Model:
 
     def fit(self, x, y, batch_size, epochs, epoch_callback=None):
         loss_history = []
+        total_duration = 0.0
 
         if len(x.shape) == 1:
             x = x.reshape(-1, 1)
@@ -65,9 +66,17 @@ class Model:
                 epoch_loss += loss
                 bbar.update(epoch_loss / (i+1))
 
-            bbar.close()
+            duration = bbar.close()
+            total_duration += duration
+
             loss_history.append(epoch_loss / num_batches_total)
             if epoch_callback != None:
                 epoch_callback.__call__(e+1)
 
-        return loss_history
+        stats = {
+            'total_duration': total_duration,
+            'mean_epoch_duration': total_duration/epochs,
+            'loss_history': loss_history,
+        }
+
+        return stats
