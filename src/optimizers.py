@@ -33,6 +33,37 @@ class RandomOptimizer(Optimizer):
     def get_name(self):
         return 'random_optimizer'
 
+def _backprop_gradient(stack: LayerStack, loss: Loss, x, y_true):
+    activations, z_inputs, y_pred = stack.forward_trace(x)
+
+    bias_gradients = []
+    weight_gradients = []
+
+    # propagate error to before loss
+    delta = loss.apply_derivative(y_pred, y_true)
+    if len(delta.shape) == 1:
+        delta = delta.reshape(-1, 1)
+
+    for i in range(len(stack.layers)-1, -1, -1):
+        # propagate error to before layer activation
+        act_deriv = stack.layers[i].activation.apply_derivative(z_inputs[i])
+        delta = delta * act_deriv
+
+        prev_act = activations[i-1] if i > 0 else x
+        
+        b_grad = np.sum(delta, axis=0, keepdims=True)
+        w_grad = np.matmul(prev_act.T, delta)
+
+        bias_gradients.append(b_grad)
+        weight_gradients.append(w_grad)
+
+        # propagate error to before current layer
+        # (omit first layer because it won't be used)
+        if i != 0:
+            delta = np.matmul(delta, stack.layers[i].weights.T)
+
+    return list(reversed(bias_gradients)), list(reversed(weight_gradients))
+
 class SGD(Optimizer):
     def __init__(self, lr_rate=0.01, momentum=0.9):
         self.lr_rate = lr_rate
@@ -55,7 +86,7 @@ class SGD(Optimizer):
                 w_vel[i] = w_vel[i] * self.momentum + w_grad[i] * (1-self.momentum)
 
     def apply(self, stack, loss, batch_x, batch_y):
-        bias_gradients, weight_gradients = self._backprop_gradient(stack, loss, batch_x, batch_y)
+        bias_gradients, weight_gradients = _backprop_gradient(stack, loss, batch_x, batch_y)
         self._update_velocity(bias_gradients, weight_gradients)
 
         for i, layer in enumerate(stack.layers):
@@ -66,36 +97,6 @@ class SGD(Optimizer):
         loss_val = loss(pred, batch_y)
 
         return stack, loss_val
-
-    def _backprop_gradient(self, stack: LayerStack, loss: Loss, x, y_true):
-        activations, z_inputs, y_pred = stack.forward_trace(x)
-
-        bias_gradients = []
-        weight_gradients = []
-
-        # propagate error to before loss
-        delta = loss.apply_derivative(y_pred, y_true).reshape(-1, 1)
-
-        for i in range(len(stack.layers)-1, -1, -1):
-            # propagate error to before layer activation
-            act_deriv = stack.layers[i].activation.apply_derivative(z_inputs[i])
-            delta = delta * act_deriv
-
-            prev_act = activations[i-1] if i > 0 else x
-            
-            b_grad = np.sum(delta, axis=0, keepdims=True)
-            w_grad = np.matmul(prev_act.T, delta)
-
-            bias_gradients.append(b_grad)
-            weight_gradients.append(w_grad)
-
-            # propagate error to before current layer
-            # (omit first layer because it won't be used)
-            if i != 0:
-                delta = np.matmul(delta, stack.layers[i].weights.T)
-
-        return list(reversed(bias_gradients)), list(reversed(weight_gradients))
-
 
 class Adam(Optimizer):
     def __init__(self, lr_rate=0.01, momentum=0.9):
@@ -130,7 +131,7 @@ class Adam(Optimizer):
                 w_vel_2[i] = w_vel_2[i] * self.momentum + np.square(w_grad[i]) * (1-self.momentum)
 
     def apply(self, stack, loss, batch_x, batch_y):
-        bias_gradients, weight_gradients = self._backprop_gradient(stack, loss, batch_x, batch_y)
+        bias_gradients, weight_gradients = _backprop_gradient(stack, loss, batch_x, batch_y)
         self._update_velocity(bias_gradients, weight_gradients)
 
         epsilon = np.finfo(np.float32).eps
@@ -154,37 +155,6 @@ class Adam(Optimizer):
         loss_val = loss(pred, batch_y)
 
         return stack, loss_val
-
-    def _backprop_gradient(self, stack: LayerStack, loss: Loss, x, y_true):
-        activations, z_inputs, y_pred = stack.forward_trace(x)
-
-        bias_gradients = []
-        weight_gradients = []
-
-        # propagate error to before loss
-        delta = loss.apply_derivative(y_pred, y_true)
-        if len(delta.shape) == 1:
-            delta = delta.reshape(-1, 1)
-
-        for i in range(len(stack.layers)-1, -1, -1):
-            # propagate error to before layer activation
-            act_deriv = stack.layers[i].activation.apply_derivative(z_inputs[i])
-            delta = delta * act_deriv
-
-            prev_act = activations[i-1] if i > 0 else x
-            
-            b_grad = np.sum(delta, axis=0, keepdims=True)
-            w_grad = np.matmul(prev_act.T, delta)
-
-            bias_gradients.append(b_grad)
-            weight_gradients.append(w_grad)
-
-            # propagate error to before current layer
-            # (omit first layer because it won't be used)
-            if i != 0:
-                delta = np.matmul(delta, stack.layers[i].weights.T)
-
-        return list(reversed(bias_gradients)), list(reversed(weight_gradients))
 
 _optimizers = {
     cls().get_name(): cls
