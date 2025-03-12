@@ -46,7 +46,9 @@ class ProgressBar:
         end = time.perf_counter()
         duration = end - self.start_time
 
-        bar_format=f"{self.ACCENT}{{bar:30}}{self.RESET} | {self.iter_name} {{n_fmt:>{self.n_fmt_length}}}/{{total_fmt}} {duration:.2f} s | {{desc}}"
+        bar_completed = f'\u2501 COMPLETED ' + ''.join(['\u2501' for n in range(18)])
+
+        bar_format=f"{self.ACCENT}{bar_completed}{self.RESET} | {self.iter_name} {{n_fmt:>{self.n_fmt_length}}}/{{total_fmt}} | {duration:.2f} s | {{desc}}"
         self.bar.bar_format = bar_format
         self.bar.refresh()
         self.bar.close()
