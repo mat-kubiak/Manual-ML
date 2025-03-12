@@ -162,7 +162,9 @@ class Adam(Optimizer):
         weight_gradients = []
 
         # propagate error to before loss
-        delta = loss.apply_derivative(y_pred, y_true).reshape(-1, 1)
+        delta = loss.apply_derivative(y_pred, y_true)
+        if len(delta.shape) == 1:
+            delta = delta.reshape(-1, 1)
 
         for i in range(len(stack.layers)-1, -1, -1):
             # propagate error to before layer activation
