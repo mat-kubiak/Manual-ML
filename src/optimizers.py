@@ -62,7 +62,7 @@ def _backprop_gradient(stack: LayerStack, loss: Loss, x, y_true):
         if i != 0:
             delta = np.matmul(delta, stack.layers[i].weights.T)
 
-    return list(reversed(bias_gradients)), list(reversed(weight_gradients))
+    return [x.astype(np.float32) for x in reversed(bias_gradients)], [x.astype(np.float32) for x in reversed(weight_gradients)]
 
 class SGD(Optimizer):
     def __init__(self, lr_rate=0.01, momentum=0.9):

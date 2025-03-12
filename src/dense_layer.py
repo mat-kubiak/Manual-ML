@@ -14,12 +14,11 @@ class DenseLayer:
         self.weights = self.initializer((self.input_shape, self.output_shape))
 
     def apply(self, tensor):
-        tensor = np.matmul(tensor, self.weights) + self.biases
-        tensor = self.activation(tensor)
-        return tensor
+        tensor = np.matmul(tensor, self.weights, dtype=np.float32) + self.biases
+        return self.activation(tensor)
 
     def apply_linear(self, tensor):
-        return np.matmul(tensor, self.weights) + self.biases
+        return np.matmul(tensor, self.weights, dtype=np.float32) + self.biases
 
     def copy(self):
         return copy.deepcopy(self)
