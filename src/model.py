@@ -56,16 +56,16 @@ class Model:
             print(f'\nEpoch [{e+1}/{epochs}]:')
 
             epoch_loss = 0.0
-            bbar = ProgressBar(range(num_batches_total), total_iters=num_batches_total)
-            for i in bbar.bar:
+            bbar = ProgressBar(total_iters=num_batches_total)
+            for i in range(num_batches_total):
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
 
                 self.stack, loss = self.optimizer.apply(self.stack, self.loss, x_batch, y_batch)
                 epoch_loss += loss
+                bbar.update(epoch_loss / (i+1))
 
-                bbar.update_loss(epoch_loss / (i+1))
-
+            bbar.close()
             loss_history.append(epoch_loss / num_batches_total)
             if epoch_callback != None:
                 epoch_callback.__call__(e+1)
