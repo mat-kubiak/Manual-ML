@@ -42,7 +42,7 @@ python3 -m demos.sin_function
 
 ### 1. Sine Function Reconstruction
 
-<!-- ![](docs/sin_function.gif) -->
+![](https://github.com/mat-kubiak/manual-mnist/releases/download/1.0/sin_function.gif)
 
 Trains a network to recreate a $sin(10x)$ function from a single coordinate $x \in [0, 1]$. Demo features a real-time preview of the process.
 
@@ -50,7 +50,7 @@ Code: [`demos/sin_function.py`](demos/sin_function.py)
 
 ### 2. Image reconstruction via SIREN
 
-<!-- ![](docs/lenna.gif) -->
+![](https://github.com/mat-kubiak/manual-mnist/releases/download/1.0/image_from_coordinates.gif)
 
 Trains a network to recreate a chosen gray-scale image of any dimensions from two coordinates x and y: $x,y \in [-1, 1]$. The network uses periodic sine activations and a special type of weight initialization with accordance to the SIREN approach. (See: [website](https://www.vincentsitzmann.com/siren/), [paper](https://arxiv.org/abs/2006.09661))
 
