@@ -36,19 +36,21 @@ def main():
     coord_array = np.stack((X, Y), axis=-1)
     x = np.reshape(coord_array, [height*width, 2])
 
+    units_first = 256
     units = 128
-    omega_0 = 30.0
+    omega_0_first = 60.0
+    omega_0 = 10.0
 
     model = Model(
         loss='mse',
-        optimizer=optimizers.Adam(lr_rate=1e-6),
+        optimizer=optimizers.Adam(lr_rate=1e-5),
         layers=[
-            DenseLayer(2, units, act.Sine(freq=omega_0), initializer=Siren(omega_0=omega_0, is_first=True)),
+            DenseLayer(2, units_first, act.Sine(freq=omega_0_first), initializer=Siren(omega_0=omega_0_first, is_first=True)),
+            DenseLayer(units_first, units, act.Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
             DenseLayer(units, units, act.Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
             DenseLayer(units, units, act.Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
             DenseLayer(units, units, act.Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
-            DenseLayer(units, units, act.Sine(freq=omega_0), initializer=Siren(omega_0=omega_0)),
-            DenseLayer(units, 3, 'sigmoid', initializer=Siren())
+            DenseLayer(units, 3, 'sigmoid', initializer=Siren(omega_0=omega_0))
         ]
     )
 
@@ -57,7 +59,7 @@ def main():
         save_image(preds, f'animation/{epoch}.png')
 
     stats = model.fit(x, y,
-        batch_size=64,
+        batch_size=32,
         epochs=500,
         epoch_callback=save_progress_image
     )
