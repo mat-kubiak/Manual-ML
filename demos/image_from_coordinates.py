@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -25,6 +26,9 @@ def save_image(img, path):
     Image.fromarray(colored).save(path)
 
 def main():
+
+    # prepare output dir
+    Path("animation").mkdir(parents=True, exist_ok=True)
 
     # create dataset
     img = load_image(TRAIN_IMAGE)
