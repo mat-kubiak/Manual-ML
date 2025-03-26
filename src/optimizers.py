@@ -36,33 +36,20 @@ class RandomOptimizer(Optimizer):
 def _backprop_gradient(stack: LayerStack, loss: Loss, x, y_true):
     activations, z_inputs, y_pred = stack.forward_trace(x)
 
-    bias_gradients = []
-    weight_gradients = []
+    gradients = []
 
     # propagate error to before loss
     delta = loss.apply_derivative(y_pred, y_true)
     if len(delta.shape) == 1:
         delta = delta.reshape(-1, 1)
 
+    # propagate through layers
     for i in range(len(stack.layers)-1, -1, -1):
-        # propagate error to before layer activation
-        act_deriv = stack.layers[i].activation.apply_derivative(z_inputs[i])
-        delta = delta * act_deriv
-
         prev_act = activations[i-1] if i > 0 else x
-        
-        b_grad = np.sum(delta, axis=0, keepdims=True)
-        w_grad = np.matmul(prev_act.T, delta)
+        gradient, delta = stack.layers[i].backward(z_inputs[i], prev_act, delta)
+        gradients.append(gradient)
 
-        bias_gradients.append(b_grad)
-        weight_gradients.append(w_grad)
-
-        # propagate error to before current layer
-        # (omit first layer because it won't be used)
-        if i != 0:
-            delta = np.matmul(delta, stack.layers[i].weights.T)
-
-    return [x.astype(np.float32) for x in reversed(bias_gradients)], [x.astype(np.float32) for x in reversed(weight_gradients)]
+    return [x for x in reversed(gradients)]
 
 class SGD(Optimizer):
     def __init__(self, lr_rate=0.01, momentum=0.9):
@@ -70,28 +57,24 @@ class SGD(Optimizer):
         self.momentum = momentum
         self.velocity = None
 
-    def _update_velocity(self, b_grad, w_grad):
-            if self.velocity == None:
-                self.velocity = {
-                    'biases': b_grad,
-                    'weights': w_grad
-                }
-                return
+    def _update_velocity(self, grad):
+        if self.velocity == None:
+            self.velocity = grad
+            return
 
-            b_vel = self.velocity['biases']
-            w_vel = self.velocity['weights']
-
-            for i in range(len(b_vel)):
-                b_vel[i] = b_vel[i] * self.momentum + b_grad[i] * (1-self.momentum)
-                w_vel[i] = w_vel[i] * self.momentum + w_grad[i] * (1-self.momentum)
+        for i in range(len(grad)):
+            for k in grad[i].keys():
+                self.velocity[i][k] = self.velocity[i][k] * self.momentum + grad[i][k] * (1 - self.momentum)
 
     def apply(self, stack, loss, batch_x, batch_y):
-        bias_gradients, weight_gradients = _backprop_gradient(stack, loss, batch_x, batch_y)
-        self._update_velocity(bias_gradients, weight_gradients)
+        gradients = _backprop_gradient(stack, loss, batch_x, batch_y)
+        self._update_velocity(gradients)
 
         for i, layer in enumerate(stack.layers):
-            layer.biases = layer.biases - self.lr_rate * self.velocity['biases'][i]
-            layer.weights = layer.weights - self.lr_rate * self.velocity['weights'][i]
+            layer.params = {
+                k: layer.params[k] - self.lr_rate * self.velocity[i][k]
+                for k in layer.params.keys()
+            }
 
         pred = stack.apply(batch_x)
         loss_val = loss(pred, batch_y)
@@ -105,51 +88,29 @@ class Adam(Optimizer):
         self.velocity = None
         self.second_velocity = None
 
-    def _update_velocity(self, b_grad, w_grad):
+    def _update_velocity(self, grad):
             if self.velocity == None:
-                self.velocity = {
-                    'biases': b_grad,
-                    'weights': w_grad
-                }
-                self.second_velocity = {
-                    'biases': [np.square(layer) for layer in b_grad],
-                    'weights': [np.square(layer) for layer in w_grad]
-                }
+                self.velocity = grad
+                self.second_velocity = [{key: np.square(layer[key]) for key in layer.keys()} for layer in grad]
                 return
 
-            b_vel = self.velocity['biases']
-            w_vel = self.velocity['weights']
-
-            b_vel_2 = self.second_velocity['biases']
-            w_vel_2 = self.second_velocity['weights']
-
-            for i in range(len(b_vel)):
-                b_vel[i] = b_vel[i] * self.momentum + b_grad[i] * (1-self.momentum)
-                w_vel[i] = w_vel[i] * self.momentum + w_grad[i] * (1-self.momentum)
-
-                b_vel_2[i] = b_vel_2[i] * self.momentum + np.square(b_grad[i]) * (1-self.momentum)
-                w_vel_2[i] = w_vel_2[i] * self.momentum + np.square(w_grad[i]) * (1-self.momentum)
+            for i in range(len(grad)):
+                for k in grad[i].keys():
+                    self.velocity[i][k] = self.velocity[i][k] * self.momentum + grad[i][k] * (1 - self.momentum)
+                    self.second_velocity[i][k] = self.second_velocity[i][k] * self.momentum + np.square(grad[i][k]) * (1 - self.momentum)
 
     def apply(self, stack, loss, batch_x, batch_y):
-        bias_gradients, weight_gradients = _backprop_gradient(stack, loss, batch_x, batch_y)
-        self._update_velocity(bias_gradients, weight_gradients)
+        gradients = _backprop_gradient(stack, loss, batch_x, batch_y)
+        self._update_velocity(gradients)
 
         epsilon = np.finfo(np.float32).eps
 
         for i, layer in enumerate(stack.layers):
 
-            unbiased_momentum_1 = {
-                'biases': self.velocity['biases'][i] / (1 - self.momentum),
-                'weights': self.velocity['weights'][i] / (1 - self.momentum)
-            }
-
-            unbiased_momentum_2 = {
-                'biases': self.second_velocity['biases'][i] / (1 - self.momentum),
-                'weights': self.second_velocity['weights'][i] / (1 - self.momentum)
-            }
-
-            layer.biases = layer.biases - self.lr_rate * (unbiased_momentum_1['biases']) / (np.sqrt(unbiased_momentum_2['biases']) + epsilon)
-            layer.weights = layer.weights - self.lr_rate * (unbiased_momentum_1['weights']) / (np.sqrt(unbiased_momentum_2['weights']) + epsilon)
+            for k in layer.params.keys():
+                unbiased_momentum_1 = self.velocity[i][k] / (1 - self.momentum)
+                unbiased_momentum_2 = self.second_velocity[i][k] / (1 - self.momentum)
+                layer.params[k] = layer.params[k] - self.lr_rate * (unbiased_momentum_1) / (np.sqrt(unbiased_momentum_2) + epsilon)
 
         pred = stack.apply(batch_x)
         loss_val = loss(pred, batch_y)
