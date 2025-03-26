@@ -22,6 +22,20 @@ class Layer(ABC):
     def backward(self, z_input, prev_act, delta):
         pass
 
+class ActivationLayer(Layer):
+    def __init__(self, input_shape, activation):
+        super().__init__(input_shape, input_shape)
+        self.activation = ensure_activation(activation)
+
+    def apply_linear(self, tensor):
+        return tensor
+
+    def apply(self, tensor):
+        return self.activation(tensor)
+
+    def backward(self, z_input, prev_act, delta):
+        return {}, delta * self.activation.apply_derivative(z_input)
+
 class DenseLayer(Layer):
     def __init__(self, input_shape, units, activation='', initializer=''):
         super().__init__(input_shape, units)
