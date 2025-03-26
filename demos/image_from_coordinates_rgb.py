@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from src.dense_layer import DenseLayer
+from src.layers import DenseLayer
 from src.model import Model
 from src import optimizers
 from src.initializers import Siren

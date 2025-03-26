@@ -2,7 +2,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.dense_layer import DenseLayer
+from src.layers import DenseLayer
 from src.model import Model
 from src import optimizers
 
