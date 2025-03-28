@@ -61,11 +61,21 @@ class Tanh(Activation):
 
 class Softmax(Activation):
     def apply(self, x):
-        exp = np.exp(x)
-        return exp / np.sum(exp)
+        x_max = np.max(x, axis=1, keepdims=True)
+        x_exp = np.exp(x - x_max) # subtract x_max for overflow prevention
+        return x_exp / np.sum(x_exp, axis=1, keepdims=True)
 
     def apply_derivative(self, x):
-        raise NotImplementedError('derivative of softmax not implemented!')
+        softmax_out = self.apply(x)
+
+        batch_size, num_classes = softmax_out.shape
+        jacobian = np.zeros((batch_size, num_classes, num_classes))
+
+        for i in range(batch_size):
+            s = softmax_out[i].reshape(-1, 1)
+            jacobian[i] = np.diagflat(s) - np.dot(s, s.T)  # diag(S) - S * S^
+
+        return jacobian
 
 class Sine(Activation):
     def __init__(self, freq=30.0, amp=1.0):
