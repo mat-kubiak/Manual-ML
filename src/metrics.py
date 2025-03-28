@@ -32,6 +32,16 @@ class MAE(Metric):
     def _update(self, y_pred, y_true):
         self.value += np.mean(np.absolute(y_pred - y_true))
 
+class Accuracy(Metric):
+    def _update(self, y_pred, y_true):
+        if y_pred.ndim != 2 or y_pred.shape[1] == 1:
+            raise Exception(f'Accuracy metric works only on tensors with shape: (batch_size, classes>1). Got shape: {y_pred.shape}')
+
+        x = np.argmax(y_pred, axis=1)
+        y = np.argmax(y_true, axis=1)
+
+        self.value += np.mean(x == y)
+
 _metrics = {
     cls().get_name(): cls
     for cls in Metric.__subclasses__()
