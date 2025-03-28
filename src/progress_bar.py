@@ -73,9 +73,9 @@ class ProgressBar:
 
         metrics_str = ''
         for m in metrics:
-            metrics_str += f' {self.RESET}|{self.ACCENT} {m.get_name()}: {_format_num(m.get())}'
+            metrics_str += f' | {m.get_name()}: {_format_num(m.get())}'
 
-        self.bar.set_description_str(f"{self.ACCENT}loss: {_format_num(loss)}{metrics_str}{self.RESET} ")
+        self.bar.set_description_str(f"{self.ACCENT}loss: {_format_num(loss)}{self.RESET}{metrics_str} ")
         self.bar.update()
 
     def close(self):
