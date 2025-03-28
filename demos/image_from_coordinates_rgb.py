@@ -58,7 +58,7 @@ def main():
         ]
     )
 
-    def save_progress_image(epoch):
+    def save_progress_image(epoch, metrics):
         preds = model.apply(x).reshape([height, width, 3])
         save_image(preds, f'animation/{epoch}.png')
 

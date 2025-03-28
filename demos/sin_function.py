@@ -50,7 +50,7 @@ def main():
 
     loss_history = []
 
-    def update_plot_callback(epoch):
+    def update_plot_callback(epoch, metrics):
         preds = model.apply(x.reshape(-1,1)).flatten()
         pred_line.set_ydata(preds)
 

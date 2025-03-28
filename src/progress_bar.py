@@ -47,6 +47,12 @@ class DownloadProgressBar:
 
         return duration
 
+def _format_num(value):
+    if value < 0.01 or value > 100.0:
+        return f'{value:.4e}'
+    else:
+        return f'{value:.4f}'
+
 class ProgressBar:
     def __init__(self, total_iters, iter_name='batch', color='green'):
         self.n_fmt_length = len(str(total_iters))
@@ -61,16 +67,15 @@ class ProgressBar:
         bar_format=f"{self.ACCENT}{{bar:30}}{self.RESET} | {self.iter_name} {{n_fmt:>{self.n_fmt_length}}}/{{total_fmt}} ({{percentage:.1f}}%) ETA {{remaining}} | {{desc}}"
         self.bar = tqdm(None, bar_format=bar_format, ascii='\u2500\u2501', total=total_iters)
 
-    def update(self, loss):
+    def update(self, loss, metrics):
         if self.start_time == None:
             self.start_time = time.perf_counter()
-        
-        if loss < 0.01 or loss > 100.0:
-            loss_str = f'{loss:.4e}'
-        else:
-            loss_str = f'{loss:.4f}'
 
-        self.bar.set_description_str(f"{self.ACCENT}loss: {loss_str}{self.RESET} ")
+        metrics_str = ''
+        for m in metrics:
+            metrics_str += f' {self.RESET}|{self.ACCENT} {m.get_name()}: {_format_num(m.get())}'
+
+        self.bar.set_description_str(f"{self.ACCENT}loss: {_format_num(loss)}{metrics_str}{self.RESET} ")
         self.bar.update()
 
     def close(self):

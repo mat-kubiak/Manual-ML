@@ -4,12 +4,14 @@ from src.layer_stack import LayerStack
 from src.losses import ensure_loss
 from src.progress_bar import ProgressBar
 from src.optimizers import ensure_optimizer
+from src.metrics import ensure_metric
 
 class Model:
-    def __init__(self, layers, loss, optimizer):
+    def __init__(self, layers, loss, optimizer, metrics=[]):
         self.stack = LayerStack(layers)
         self.loss = ensure_loss(loss)
         self.optimizer = ensure_optimizer(optimizer)
+        self.metrics = [ensure_metric(m) for m in metrics]
 
     def apply(self, batch):
         return self.stack.apply(batch)
@@ -56,6 +58,9 @@ class Model:
 
             print(f'\nEpoch [{e+1}/{epochs}]:')
 
+            for m in self.metrics:
+                m.reset()
+
             epoch_loss = 0.0
             bbar = ProgressBar(total_iters=num_batches_total)
             for i in range(num_batches_total):
@@ -63,20 +68,29 @@ class Model:
                 y_batch = y_batches[i]
 
                 self.stack, preds = self.optimizer.apply(self.stack, self.loss, x_batch, y_batch)
+
                 epoch_loss += self.loss(preds, y_batch)
-                bbar.update(epoch_loss / (i+1))
+                for m in self.metrics:
+                    m.update(preds, y_batch)
+
+                bbar.update(epoch_loss / (i+1), self.metrics)
 
             duration = bbar.close()
             total_duration += duration
 
             loss_history.append(epoch_loss / num_batches_total)
             if epoch_callback != None:
-                epoch_callback.__call__(e+1)
+                metric_vals = {
+                    m.get_name(): m.get()
+                    for m in self.metrics
+                }
+                epoch_callback.__call__(e+1, metric_vals)
 
         stats = {
             'total_duration': total_duration,
             'mean_epoch_duration': total_duration/epochs,
             'loss_history': loss_history,
+            'metrics': {m.get_name(): m.get() for m in self.metrics}
         }
 
         return stats
