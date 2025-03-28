@@ -62,8 +62,8 @@ class Model:
                 x_batch = x_batches[i]
                 y_batch = y_batches[i]
 
-                self.stack, loss = self.optimizer.apply(self.stack, self.loss, x_batch, y_batch)
-                epoch_loss += loss
+                self.stack, preds = self.optimizer.apply(self.stack, self.loss, x_batch, y_batch)
+                epoch_loss += self.loss(preds, y_batch)
                 bbar.update(epoch_loss / (i+1))
 
             duration = bbar.close()

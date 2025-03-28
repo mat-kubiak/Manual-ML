@@ -77,9 +77,7 @@ class SGD(Optimizer):
             }
 
         pred = stack.apply(batch_x)
-        loss_val = np.mean(loss(pred, batch_y))
-
-        return stack, loss_val
+        return stack, pred
 
 class Adam(Optimizer):
     def __init__(self, lr_rate=0.01, momentum=0.9):
@@ -113,8 +111,7 @@ class Adam(Optimizer):
                 layer.params[k] = layer.params[k] - self.lr_rate * (unbiased_momentum_1) / (np.sqrt(unbiased_momentum_2) + epsilon)
 
         pred = stack.apply(batch_x)
-        loss_val = np.mean(loss(pred, batch_y))
-        return stack, loss_val
+        return stack, pred
 
 _optimizers = {
     cls().get_name(): cls
