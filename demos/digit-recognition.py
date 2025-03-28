@@ -1,11 +1,6 @@
-import urllib.request
+import os, hashlib, urllib.request
 from pathlib import Path
 import numpy as np
-
-from src.layers import DenseLayer
-from src.model import Model
-from src import optimizers
-from src.progress_bar import DownloadProgressBar
 
 class DLProgbar:
     def __init__(self):
@@ -23,16 +18,29 @@ class DLProgbar:
 
 def download_mnist():
     url = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz"
+    true_hash = "731c5ac602752760c8e48fbffcf8c3b850d9dc2a2aedcf2cc48468fc17b673d1"
     dpath = './datasets/mnist.npz'
 
-    if not Path(dpath).is_file():
+    if Path(dpath).is_file():
+        print('MNIST dataset already downloaded, skipping...')
+    else:
         print('Downloading MNIST dataset...')
 
         Path("./datasets").mkdir(parents=True, exist_ok=True)
         dpath, _ = urllib.request.urlretrieve(url=url, filename=dpath, reporthook=DLProgbar())
         print('Download successful!')
-    else:
-        print('MNIST dataset already downloaded, skipping...')
+
+        pred_hash = hashlib.sha256()
+        with open(dpath,"rb") as f:
+            # Read and update hash in chunks of 4K
+            for byte_block in iter(lambda: f.read(4096),b""):
+                pred_hash.update(byte_block)
+        if pred_hash.hexdigest() != true_hash:
+            print('Hash check did not succeed, please try again!')
+            print(f'correct:  {true_hash}')
+            print(f'computed: {pred_hash.hexdigest()}')
+            os.remove(dpath)
+            exit()
 
     with np.load(dpath, allow_pickle=True) as f:
         x_train, y_train = f["x_train"], f["y_train"]
