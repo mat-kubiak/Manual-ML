@@ -16,6 +16,37 @@ def to_color_code(color_name):
     # Default to reset
     return color_map.get(color_name.lower(), '\033[0m')
 
+class DownloadProgressBar:
+    def __init__(self, total_iters, color='green'):
+        self.n_fmt_length = len(str(total_iters))
+
+        self.ACCENT = to_color_code(color)
+        self.RESET = to_color_code('reset')
+
+        self.start_time = None
+
+        bar_format=f"{self.ACCENT}{{bar:30}}{self.RESET} | {{n_fmt:>{self.n_fmt_length}}}/{{total_fmt}} ({{percentage:.1f}}%) ETA {{remaining}}"
+        self.bar = tqdm(None, bar_format=bar_format, ascii='\u2500\u2501', total=total_iters)
+
+    def update(self, progress):
+        if self.start_time == None:
+            self.start_time = time.perf_counter()
+        self.bar.n = progress
+        self.bar.refresh()
+
+    def close(self):
+        end = time.perf_counter()
+        duration = end - self.start_time
+
+        bar_completed = f'\u2501 COMPLETED ' + ''.join(['\u2501' for n in range(18)])
+
+        bar_format=f"{self.ACCENT}{bar_completed}{self.RESET} | {{n_fmt:>{self.n_fmt_length}}}/{{total_fmt}} | {duration:.2f} s"
+        self.bar.bar_format = bar_format
+        self.bar.refresh()
+        self.bar.close()
+
+        return duration
+
 class ProgressBar:
     def __init__(self, total_iters, iter_name='batch', color='green'):
         self.n_fmt_length = len(str(total_iters))

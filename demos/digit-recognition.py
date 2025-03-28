@@ -1,7 +1,25 @@
-import tqdm
 import urllib.request
 from pathlib import Path
 import numpy as np
+
+from src.layers import DenseLayer
+from src.model import Model
+from src import optimizers
+from src.progress_bar import DownloadProgressBar
+
+class DLProgbar:
+    def __init__(self):
+        self.progbar = None
+
+    def __call__(self, block_num, block_size, total_size):
+        if not self.progbar:
+            self.progbar = DownloadProgressBar(total_iters=total_size)
+
+        current = block_num * block_size
+        if current < total_size:
+            self.progbar.update(current)
+        else:
+            self.progbar.close()
 
 def download_mnist():
     url = "https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz"
@@ -11,7 +29,7 @@ def download_mnist():
         print('Downloading MNIST dataset...')
 
         Path("./datasets").mkdir(parents=True, exist_ok=True)
-        dpath, _ = urllib.request.urlretrieve(url=url, filename=dpath)
+        dpath, _ = urllib.request.urlretrieve(url=url, filename=dpath, reporthook=DLProgbar())
         print('Download successful!')
     else:
         print('MNIST dataset already downloaded, skipping...')
