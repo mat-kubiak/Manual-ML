@@ -57,7 +57,11 @@ class DenseLayer(Layer):
     def backward(self, z_input, prev_act, delta):
         # propagate error to before layer activation
         act_deriv = self.activation.apply_derivative(z_input)
-        delta = delta * act_deriv
+
+        if act_deriv.ndim == 3:  # jacobian derivative
+            delta = np.einsum('bij,bj->bi', act_deriv, delta)
+        else:  # vector derivative
+            delta = delta * act_deriv
 
         b_grad = np.sum(delta, axis=0, keepdims=True)
         w_grad = np.matmul(prev_act.T, delta)

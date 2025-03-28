@@ -30,6 +30,17 @@ class MAE(Loss):
     def apply_derivative(self, y_pred, y_true):
         return np.where(y_pred > y_true, 1, np.where(y_pred < y_true, -1, 0))
 
+class CategoricalCrossentropy(Loss):
+    def apply(self, y_pred, y_true):
+        epsilon = np.finfo(np.float32).eps
+        return -np.sum(y_true * np.log(y_pred + epsilon), axis=1)
+
+    def apply_derivative(self, y_pred, y_true):
+        return y_pred - y_true
+
+    def get_name(self):
+        return 'categorical_crossentropy'
+
 _losses = {
     cls().get_name(): cls
     for cls in Loss.__subclasses__()
