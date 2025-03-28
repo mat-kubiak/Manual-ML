@@ -69,7 +69,8 @@ class Model:
 
                 self.stack, preds = self.optimizer.apply(self.stack, self.loss, x_batch, y_batch)
 
-                epoch_loss += self.loss(preds, y_batch)
+                # np.mean() required for classification losses
+                epoch_loss += np.mean(self.loss(preds, y_batch))
                 for m in self.metrics:
                     m.update(preds, y_batch)
 
