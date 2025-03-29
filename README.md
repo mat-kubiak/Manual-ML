@@ -1,6 +1,6 @@
-# manual-mnist
+# Manual Machine Learning
 
-Written digit recognition network (+ various demos) trained without any ML framework (only Numpy + matplotlib for visualization)
+Written digit recognition network (+ various demos) trained using a DIY ML framework with API inspired by TensorFlow (only Numpy + matplotlib for visualization)
 
 ## Features
 
@@ -10,12 +10,24 @@ The full list of features:
 
 | Type | Features |
 | - | - |
-| Layers | Dense Layer |
+| Layers | Dense, Activation |
 | Architectures | linear |
 | Optimizers | Random, SGD with momentum, Adam |
-| Losses | MSE, MAE |
+| Losses | MSE, MAE, Categorical Crossentropy |
+| Metrics | MSE, MAE, Accuracy |
 | Activations | Linear, ReLU, LeakyReLU, Sigmoid, Tanh, Sine |
 | Dataset ops. | shuffling, even/uneven batching |
+
+## Roadmap
+
+Features that will likely be added in the future: (in order of importance)
+* Dropout layer
+* Conv2D and Flatten layers
+* validation datasets
+* non-linear architecture with Concatenate layer
+* gradient clipping
+* Huber loss
+* AdamW optimizer
 
 ## Dependencies
 
