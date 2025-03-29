@@ -58,14 +58,18 @@ def main():
         ]
     )
 
-    def save_progress_image(epoch, metrics):
+    loss_history = []
+    def epoch_callback(epoch, metrics):
+        loss_history.append(metrics['loss'])       
+
+        # save progress image
         preds = model.apply(x).reshape([height, width, 3])
         save_image(preds, f'animation/{epoch}.png')
 
     stats = model.fit(x, y,
         batch_size=32,
         epochs=500,
-        epoch_callback=save_progress_image
+        epoch_callback=epoch_callback
     )
 
     preds = model.apply(x).reshape([height, width, 3])
@@ -83,7 +87,6 @@ def main():
     axes[1].set_title("Predicted")
     axes[1].axis("off")
 
-    loss_history = stats['loss_history']
     axes[2].plot(range(len(loss_history)), loss_history, color='red', linewidth=2.0)
     axes[2].set_title("Loss History")
     axes[2].set_xlabel("Epoch")

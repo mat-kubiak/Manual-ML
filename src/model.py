@@ -17,7 +17,7 @@ class Model:
         return self.stack.apply(batch)
 
     def fit(self, x, y, batch_size, epochs, epoch_callback=None):
-        loss_history = []
+        last_loss_value = None
         total_duration = 0.0
 
         if len(x.shape) == 1:
@@ -79,22 +79,21 @@ class Model:
             duration = bbar.close()
             total_duration += duration
 
-            loss_history.append(epoch_loss / num_batches_total)
+            last_loss_value = epoch_loss / num_batches_total
             if epoch_callback != None:
                 metric_vals = {
                     m.get_name(): m.get()
                     for m in self.metrics
                 }
-                metric_vals['loss'] = epoch_loss / num_batches_total
+                metric_vals['loss'] = last_loss_value
                 epoch_callback.__call__(e+1, metric_vals)
 
         metrics = {m.get_name(): m.get() for m in self.metrics}
-        metrics['loss'] = loss_history[len(loss_history)-1]
-        
+        metrics['loss'] = last_loss_value
+
         stats = {
             'total_duration': total_duration,
             'mean_epoch_duration': total_duration/epochs,
-            'loss_history': loss_history,
             'metrics': metrics
         }
 
