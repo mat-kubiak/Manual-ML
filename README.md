@@ -1,10 +1,10 @@
 # Manual Machine Learning
 
-Written digit recognition network (+ various demos) trained using a DIY ML framework with API inspired by TensorFlow (only Numpy + matplotlib for visualization)
+MNIST written digit recognition (+ various other demos) trained using a DIY ML framework with TensorFlow-inspired API
 
 ## Features
 
-Currently, the engine supports only linear architecture with dense layers.
+Currently, the framework supports only linear architecture with dense layers.
 
 The full list of features:
 
@@ -31,9 +31,9 @@ Features that will likely be added in the future: (in order of importance)
 
 ## Dependencies
 
-The engine itself does not rely on anything else than standard python packages and Numpy.
+The framework itself does not rely on anything else than Numpy, Tqdm and standard python packages.
 
-Additional dependencies are required for demos:
+Additional dependencies are required for launching demos:
 * Pillow
 * Matplotlib
 
