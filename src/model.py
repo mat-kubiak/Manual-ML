@@ -85,13 +85,17 @@ class Model:
                     m.get_name(): m.get()
                     for m in self.metrics
                 }
+                metric_vals['loss'] = epoch_loss / num_batches_total
                 epoch_callback.__call__(e+1, metric_vals)
 
+        metrics = {m.get_name(): m.get() for m in self.metrics}
+        metrics['loss'] = loss_history[len(loss_history)-1]
+        
         stats = {
             'total_duration': total_duration,
             'mean_epoch_duration': total_duration/epochs,
             'loss_history': loss_history,
-            'metrics': {m.get_name(): m.get() for m in self.metrics}
+            'metrics': metrics
         }
 
         return stats
