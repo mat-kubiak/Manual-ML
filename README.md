@@ -64,15 +64,13 @@ https://github.com/user-attachments/assets/19e969d7-7b87-4dc7-a0bb-6690ba88af27
 
 Trains a network to recreate a chosen gray-scale or rgb image of any dimensions from two coordinates x and y: $x,y \in [-1, 1]$. The network uses periodic sine activations and a special type of weight initialization with accordance to the SIREN approach. (See: [website](https://www.vincentsitzmann.com/siren/), [paper](https://arxiv.org/abs/2006.09661))
 
-Code:
-* [`demos/image_from_coordinates.py`](demos/image_from_coordinates.py)
-* [`demos/image_from_coordinates_rgb.py`](demos/image_from_coordinates_rgb.py)
+Code: [`demos/image_from_coordinates.py`](demos/image_from_coordinates.py) and [`demos/image_from_coordinates_rgb.py`](demos/image_from_coordinates_rgb.py)
 
-Example gray-scale image (colored with cmap): 
+__Example gray-scale image (colored with cmap):__ 
 
 https://github.com/user-attachments/assets/8ef61d7d-5f81-4562-bf19-d10c7a8b75fe
 
-Example rgb image:
+__Example rgb image:__
 
 https://github.com/user-attachments/assets/43d97b44-ec67-4dac-832e-0748fb44bb03
 
