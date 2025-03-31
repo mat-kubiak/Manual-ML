@@ -54,17 +54,27 @@ python3 -m demos.sin_function
 
 ### 1. Sine Function Reconstruction
 
-https://github.com/user-attachments/assets/28ca69fc-03c1-4a8f-9f6d-0be404ae4747
-
 Trains a network to recreate a $sin(10x)$ function from a single coordinate $x \in [0, 1]$. Demo features a real-time preview of the process.
 
 Code: [`demos/sin_function.py`](demos/sin_function.py)
 
+https://github.com/user-attachments/assets/19e969d7-7b87-4dc7-a0bb-6690ba88af27
+
 ### 2. Image reconstruction via SIREN
 
-Trains a network to recreate a chosen gray-scale image of any dimensions from two coordinates x and y: $x,y \in [-1, 1]$. The network uses periodic sine activations and a special type of weight initialization with accordance to the SIREN approach. (See: [website](https://www.vincentsitzmann.com/siren/), [paper](https://arxiv.org/abs/2006.09661))
+Trains a network to recreate a chosen gray-scale or rgb image of any dimensions from two coordinates x and y: $x,y \in [-1, 1]$. The network uses periodic sine activations and a special type of weight initialization with accordance to the SIREN approach. (See: [website](https://www.vincentsitzmann.com/siren/), [paper](https://arxiv.org/abs/2006.09661))
 
-Code: [`demos/image_from_coordinates.py`](demos/image_from_coordinates.py)
+Code:
+* [`demos/image_from_coordinates.py`](demos/image_from_coordinates.py)
+* [`demos/image_from_coordinates_rgb.py`](demos/image_from_coordinates_rgb.py)
+
+Example gray-scale image (colored with cmap): 
+
+https://github.com/user-attachments/assets/8ef61d7d-5f81-4562-bf19-d10c7a8b75fe
+
+Example rgb image:
+
+https://github.com/user-attachments/assets/43d97b44-ec67-4dac-832e-0748fb44bb03
 
 ## License
 
